@@ -1,4 +1,4 @@
-import { IState, initState } from "./state";
+import { IState, initState } from "../state";
 import { Action } from "redux";
 import { SET_USERS, START_LOADING, END_LOADING, ERROR } from "./actions";
 

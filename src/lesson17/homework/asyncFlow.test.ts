@@ -1,4 +1,4 @@
-import { store } from "./asyncFlow/store";
+import { store } from "./store";
 import { getUsers } from "./asyncFlow";
 import { SET_USERS, START_LOADING, END_LOADING, ERROR } from "./asyncFlow/actions";
 
