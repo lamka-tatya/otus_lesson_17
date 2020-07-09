@@ -15,8 +15,25 @@ src/lesson17/homework/asyncFlow.ts
 
 */
 
+import { store } from "./asyncFlow/store";
+import { START_LOADING, SET_USERS, ERROR, END_LOADING } from "./asyncFlow/actions";
+
 // Action creators
 
 // Thunks
 
 // Reducer
+
+export const getUsers = async () => {
+	store.dispatch({ type: START_LOADING });
+
+	return await fetch(`https://swapi.dev/api/people`)
+		.then(data => {
+			store.dispatch({ type: SET_USERS, payload: (data as any).results })
+		})
+		.catch(error => store.dispatch({ type: ERROR, payload: error }))
+		.finally(() => store.dispatch({ type: END_LOADING }));
+}
+
+
+
