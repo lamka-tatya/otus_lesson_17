@@ -1,6 +1,6 @@
-import { store } from "./store";
-import { SET_USERS, START_LOADING, END_LOADING, ERROR } from "./asyncFlow/actions";
-import { loadUsers, LOAD_USERS } from "./thunk/actions";
+import { store } from "../store";
+import { SET_USERS, START_LOADING, END_LOADING, ERROR } from "../asyncFlow/actions";
+import { loadUsers, LOAD_USERS } from "./actions";
 import { loadUsersMiddleware } from "./thunk";
 
 const str = store;

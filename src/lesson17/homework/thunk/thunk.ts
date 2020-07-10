@@ -13,8 +13,8 @@ src/lesson17/homework/thunk.ts
 */
 
 import { Middleware } from "redux"
-import { SET_USERS, ERROR, END_LOADING, START_LOADING } from "./asyncFlow/actions";
-import { LOAD_USERS } from "./thunk/actions";
+import { LOAD_USERS } from "./actions";
+import { START_LOADING, SET_USERS, ERROR, END_LOADING } from "../asyncFlow/actions";
 
 export const loadUsersMiddleware: Middleware = ({ dispatch }) => (next) => async (action) => {
 	if (action.type === LOAD_USERS) {

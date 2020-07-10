@@ -1,6 +1,6 @@
-import { store } from "./store";
+import { store } from "../store";
 import { probablityMiddleware } from "./probability";
-import { ANALYTICS_CLICK } from "./probability/actions";
+import { ANALYTICS_CLICK } from "./actions";
 
 const str = store;
 

@@ -1,6 +1,6 @@
-import { store } from "./store";
+import { store } from "../store";
 import { getUsers } from "./asyncFlow";
-import { SET_USERS, START_LOADING, END_LOADING, ERROR } from "./asyncFlow/actions";
+import { SET_USERS, START_LOADING, END_LOADING, ERROR } from "./actions";
 
 const str = store;
 const errorFetchMock = jest.fn().mockImplementation(() => Promise.resolve(

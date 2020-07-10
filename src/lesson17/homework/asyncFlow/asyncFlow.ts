@@ -15,8 +15,9 @@ src/lesson17/homework/asyncFlow.ts
 
 */
 
-import { store } from "./store";
-import { START_LOADING, SET_USERS, ERROR, END_LOADING } from "./asyncFlow/actions";
+import { store } from "../store";
+import { SET_USERS, START_LOADING, ERROR, END_LOADING } from "./actions";
+
 
 // Action creators
 
