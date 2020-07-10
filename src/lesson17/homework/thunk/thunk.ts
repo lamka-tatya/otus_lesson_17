@@ -12,24 +12,31 @@ src/lesson17/homework/thunk.ts
 
 */
 
-import { Middleware } from "redux"
+import { Middleware } from "redux";
 import { LOAD_USERS } from "./actions";
-import { START_LOADING, SET_USERS, ERROR, END_LOADING } from "../asyncFlow/actions";
+import {
+  START_LOADING,
+  SET_USERS,
+  ERROR,
+  END_LOADING,
+} from "../asyncFlow/actions";
 
-export const loadUsersMiddleware: Middleware = ({ dispatch }) => (next) => async (action) => {
-	if (action.type === LOAD_USERS) {
-		dispatch({ type: START_LOADING });
+export const loadUsersMiddleware: Middleware = ({ dispatch }) => (
+  next
+) => async (action) => {
+  if (action.type === LOAD_USERS) {
+    dispatch({ type: START_LOADING });
 
-		fetch(`https://swapi.dev/api/people`)
-			.then(data => {
-				dispatch({ type: SET_USERS, payload: (data as any).results });
-				next(action);
-			})
-			.catch(error => dispatch({ type: ERROR, payload: error }))
-			.finally(() => {
-				dispatch({ type: END_LOADING })
-			});
-	}
+    fetch(`https://swapi.dev/api/people`)
+      .then((data) => {
+        dispatch({ type: SET_USERS, payload: (data as any).results });
+        next(action);
+      })
+      .catch((error) => dispatch({ type: ERROR, payload: error }))
+      .finally(() => {
+        dispatch({ type: END_LOADING });
+      });
+  }
 
-	return next(action);
-}
+  return next(action);
+};
