@@ -2,20 +2,30 @@ import { store } from "../store";
 import { getUsers } from "./asyncFlow";
 import { SET_USERS, START_LOADING, END_LOADING, ERROR } from "./actions";
 
-const str = store;
-const originalFetch = window.fetch;
+let str: any;
+let originalFetch: any;
+let errorFetchMock: any;
+let successFetchMock: any;
+
+beforeAll(() => {
+	originalFetch = window.fetch;
+	errorFetchMock = jest
+		.fn()
+		.mockRejectedValue("API is down");
+	successFetchMock = (result?: any[]) =>
+		jest
+			.fn()
+			.mockResolvedValue({ results: result ?? [] });
+
+});
 
 afterAll(() => {
 	window.fetch = originalFetch;
 });
 
-const errorFetchMock = jest
-	.fn()
-	.mockRejectedValue("API is down");
-const successFetchMock = (result?: any[]) =>
-	jest
-		.fn()
-		.mockResolvedValue({ results: result ?? [] });
+beforeEach(() => {
+	str = store;
+});
 
 describe("When load users", () => {
 	it("should get data", async () => {
