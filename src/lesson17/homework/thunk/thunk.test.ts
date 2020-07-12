@@ -1,153 +1,115 @@
 import { store } from "../store";
 import {
-  SET_USERS,
-  START_LOADING,
-  END_LOADING,
-  ERROR,
+	SET_USERS,
+	START_LOADING,
+	END_LOADING,
+	ERROR,
 } from "../asyncFlow/actions";
-import { loadUsers, LOAD_USERS } from "./actions";
-import { loadUsersMiddleware } from "./thunk";
+import { loadUsersThunk, loadUsers } from "./thunk";
 
-const str = store;
-const errorFetchMock = jest
-  .fn()
-  .mockImplementation(() => Promise.resolve(Promise.reject("API is down")));
-const successFetchMock = (result?: any[]) =>
-  jest
-    .fn()
-    .mockImplementation(() =>
-      Promise.resolve(Promise.resolve({ results: result ?? [] }))
-    );
+let str: any;
+let originalFetch: any;
+let errorFetchMock: any;
+let successFetchMock: any;
+
+beforeAll(() => {
+	
+	originalFetch = window.fetch;
+	errorFetchMock = jest
+		.fn()
+		.mockRejectedValue("API is down");
+	successFetchMock = (result?: any[]) =>
+		jest
+			.fn()
+			.mockResolvedValue({ results: result ?? [] });
+
+});
+
+afterAll(() => {
+	window.fetch = originalFetch;
+});
+
+beforeEach(() => {
+	str = store;
+});
 
 describe("When load users", () => {
-  it("should get data", async () => {
-    const result = [{ name: "123" }, { name: "456" }, { name: "789" }];
-    window.fetch = successFetchMock(result);
+	it("should dispatch set users", async () => {
+		const result = [{ name: "123" }, { name: "456" }, { name: "789" }];
+		window.fetch = successFetchMock(result);
 
-    loadUsers();
-    await Promise.resolve();
+		const dispatchSpy = jest.spyOn(str, "dispatch");
 
-    expect(str.getState().users).toBe(result);
-    expect(str.getState().error).toBe(null);
-  });
+		loadUsersThunk()(str.dispatch);
+		await Promise.resolve();
+		await Promise.resolve();
 
-  it("should pass to next action", async () => {
-    window.fetch = successFetchMock();
-    const fakeNext = jest.fn();
+		expect(dispatchSpy).toHaveBeenCalledWith({ type: SET_USERS, payload: result });
+	});
 
-    loadUsersMiddleware(str)(fakeNext)({ type: LOAD_USERS });
-    await Promise.resolve();
+	it("should dispatch start loading", async () => {
 
-    expect(fakeNext).toBeCalledWith({ type: LOAD_USERS });
-  });
+		window.fetch = successFetchMock();
+		const dispatchSpy = jest.spyOn(str, "dispatch");
 
-  it("should dispatch set users", async () => {
-    window.fetch = successFetchMock();
-    const fakeDispatch = jest.fn();
+		loadUsersThunk()(str.dispatch);
+		await Promise.resolve();
 
-    loadUsersMiddleware({ dispatch: fakeDispatch } as any)(jest.fn())({
-      type: LOAD_USERS,
-    });
-    await Promise.resolve();
+		expect(dispatchSpy).toHaveBeenCalledWith({ type: START_LOADING });
+	});
 
-    expect(fakeDispatch).toHaveBeenCalledWith({ type: SET_USERS, payload: [] });
-  });
+	it("should dispatch end loading", async () => {
+		window.fetch = successFetchMock();
+		const dispatchSpy = jest.spyOn(str, "dispatch");
 
-  it("should dispatch start loading", async () => {
-    window.fetch = successFetchMock();
-    const fakeDispatch = jest.fn();
+		loadUsersThunk()(str.dispatch);
+		await Promise.resolve();
+		await Promise.resolve();
+		await Promise.resolve();
 
-    loadUsersMiddleware({ dispatch: fakeDispatch } as any)(jest.fn())({
-      type: LOAD_USERS,
-    });
-    await Promise.resolve();
+		expect(dispatchSpy).toHaveBeenCalledWith({ type: END_LOADING });
+	});
 
-    expect(fakeDispatch).toHaveBeenCalledWith({ type: START_LOADING });
-  });
+	describe("and error occured while loading", () => {
 
-  it("should dispatch end loading", async () => {
-    window.fetch = successFetchMock();
-    const fakeDispatch = jest.fn();
+		it("should dispatch error", async () => {
+			window.fetch = errorFetchMock;
+			const dispatchSpy = jest.spyOn(str, "dispatch");
 
-    loadUsersMiddleware({ dispatch: fakeDispatch } as any)(jest.fn())({
-      type: LOAD_USERS,
-    });
-    await Promise.resolve();
-    await Promise.resolve();
-    await Promise.resolve();
+			loadUsersThunk()(str.dispatch);
+			await Promise.resolve();
+			await Promise.resolve();
 
-    expect(fakeDispatch).toHaveBeenCalledWith({ type: END_LOADING });
-  });
+			expect(dispatchSpy).toHaveBeenCalledWith({
+				type: ERROR,
+				payload: "API is down",
+			});
+		});
 
-  describe("and error occured while loading", () => {
-    it("should dispatch error", async () => {
-      window.fetch = errorFetchMock;
-      const fakeDispatch = jest.fn();
+		it("should dispatch start loading", async () => {
+			window.fetch = errorFetchMock;
 
-      loadUsersMiddleware({ dispatch: fakeDispatch } as any)(jest.fn())({
-        type: LOAD_USERS,
-      });
-      await Promise.resolve();
-      await Promise.resolve();
+			const dispatchSpy = jest.spyOn(str, "dispatch");
 
-      expect(fakeDispatch).toHaveBeenCalledWith({
-        type: ERROR,
-        payload: "API is down",
-      });
-    });
+			loadUsersThunk()(str.dispatch);
+			await Promise.resolve();
 
-    it("should set error", async () => {
-      window.fetch = errorFetchMock;
+			expect(dispatchSpy).toHaveBeenCalledWith({ type: START_LOADING });
+		});
 
-      loadUsers();
-      await Promise.resolve();
-      await Promise.resolve();
+		it("should dispatch end loading", async () => {
+			window.fetch = errorFetchMock;
 
-      expect(str.getState().error).toBe("API is down");
-    });
+			const dispatchSpy = jest.spyOn(str, "dispatch");
 
-    it("should dispatch start loading", async () => {
-      window.fetch = errorFetchMock;
+			loadUsersThunk()(str.dispatch);
+			await Promise.resolve();
+			await Promise.resolve();
+			await Promise.resolve();
+			await Promise.resolve();
+			await Promise.resolve();
 
-      const fakeDispatch = jest.fn();
-
-      loadUsersMiddleware({ dispatch: fakeDispatch } as any)(jest.fn())({
-        type: LOAD_USERS,
-      });
-      await Promise.resolve();
-
-      expect(fakeDispatch).toHaveBeenCalledWith({ type: START_LOADING });
-    });
-
-    it("should dispatch end loading", async () => {
-      window.fetch = errorFetchMock;
-
-      const fakeDispatch = jest.fn();
-
-      loadUsersMiddleware({ dispatch: fakeDispatch } as any)(jest.fn())({
-        type: LOAD_USERS,
-      });
-      await Promise.resolve();
-      await Promise.resolve();
-      await Promise.resolve();
-
-      expect(fakeDispatch).toHaveBeenCalledWith({ type: END_LOADING });
-    });
-
-    it("should clear error on next load", async () => {
-      window.fetch = errorFetchMock;
-
-      loadUsers();
-      await Promise.resolve();
-      await Promise.resolve();
-      const prevError = str.getState().error;
-      window.fetch = successFetchMock();
-      loadUsers();
-      await Promise.resolve();
-      await Promise.resolve();
-
-      expect(prevError).toBe("API is down");
-      expect(str.getState().error).toBe(null);
-    });
-  });
+			expect(dispatchSpy).toHaveBeenCalledWith({ type: END_LOADING });
+		});
+	});
 });
