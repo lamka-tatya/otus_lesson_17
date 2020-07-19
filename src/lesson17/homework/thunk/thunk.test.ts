@@ -7,33 +7,34 @@ import {
 } from "../asyncFlow/actions";
 import { loadUsersThunk, loadUsers } from "./thunk";
 
-let str: any;
-let originalFetch: any;
-let errorFetchMock: any;
-let successFetchMock: any;
-
-beforeAll(() => {
-	
-	originalFetch = window.fetch;
-	errorFetchMock = jest
-		.fn()
-		.mockRejectedValue("API is down");
-	successFetchMock = (result?: any[]) =>
-		jest
-			.fn()
-			.mockResolvedValue({ results: result ?? [] });
-
-});
-
-afterAll(() => {
-	window.fetch = originalFetch;
-});
-
-beforeEach(() => {
-	str = store;
-});
-
 describe("When load users", () => {
+
+	let str: any;
+	let originalFetch: any;
+	let errorFetchMock: any;
+	let successFetchMock: any;
+
+	beforeAll(() => {
+
+		originalFetch = window.fetch;
+		errorFetchMock = jest
+			.fn()
+			.mockRejectedValue("API is down");
+		successFetchMock = (result?: any[]) =>
+			jest
+				.fn()
+				.mockResolvedValue({ results: result ?? [] });
+
+	});
+
+	afterAll(() => {
+		window.fetch = originalFetch;
+	});
+
+	beforeEach(() => {
+		str = store;
+	});
+
 	it("should dispatch set users", async () => {
 		const result = [{ name: "123" }, { name: "456" }, { name: "789" }];
 		window.fetch = successFetchMock(result);

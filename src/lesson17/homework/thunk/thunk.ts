@@ -19,6 +19,16 @@ import {
 	END_LOADING,
 } from "../asyncFlow/actions";
 import { store } from "@/rdx/store";
+import { Middleware } from "redux";
+
+export const thunkMiddleware: Middleware = ({ dispatch, getState }) => (
+	next
+) => async (action) => {
+	if (typeof action === "function") {
+		return action(dispatch, getState);
+	}
+	return next(action);
+};
 
 export const loadUsersThunk: any = () => (dispatch: any) => {
 	dispatch({ type: START_LOADING });
@@ -28,7 +38,8 @@ export const loadUsersThunk: any = () => (dispatch: any) => {
 			dispatch({ type: SET_USERS, payload: (data as any).results });
 		})
 		.catch((error) => {
-			dispatch({ type: ERROR, payload: error })})
+			dispatch({ type: ERROR, payload: error })
+		})
 		.finally(() => {
 			dispatch({ type: END_LOADING });
 		});
