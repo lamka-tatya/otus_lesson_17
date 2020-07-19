@@ -24,10 +24,10 @@ import { SET_USERS, START_LOADING, ERROR, END_LOADING } from "./actions";
 
 // Reducer
 
-export const getUsers = async () => {
+export const getUsers = () => {
   store.dispatch({ type: START_LOADING });
 
-  return await fetch(`https://swapi.dev/api/people`)
+  return fetch(`https://swapi.dev/api/people`)
     .then((data) => {
       store.dispatch({ type: SET_USERS, payload: (data as any).results });
     })
